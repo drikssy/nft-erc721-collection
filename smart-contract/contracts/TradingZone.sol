@@ -122,8 +122,8 @@ contract TradingZone is ERC721AQueryable, Ownable, ReentrancyGuard {
   function withdrawToOwners() public onlyOwner nonReentrant {
 
     uint256 totalBalance = address(this).balance;
-    (bool success1, ) = payable(0x51E3B4fDcC33df3D5eC3574F6E1D3558332FC6Fe).call{value: totalBalance/2}('');
-    (bool success2, ) = payable(0x5d954f61861AB6B8DDc734380262e273E88E7379).call{value: totalBalance/2}('');
+    (bool success1, ) = payable(0x7Be6859955eD564ed00192cdA977Bbe7E3409B25).call{value: totalBalance/2}('');
+    (bool success2, ) = payable(0x44a47C262Dd2c38c065606797E7a6657a5fde6e1).call{value: totalBalance/2}('');
     require(success1 && success2, "withdraw failed");
   }
 
