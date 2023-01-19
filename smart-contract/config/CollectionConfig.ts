@@ -15,15 +15,15 @@ const CollectionConfig: CollectionConfigInterface = {
   prefixUri: 'ipfs://QmUxmm6rxmZrbiZgBMpnffghXnGe1FuFUdXZPw1LB8nEau/',
   maxSupply: 500,
   whitelistSale: {
-    price: 0.03,
+    price: 0.05,
     maxMintAmountPerTx: 1,
   },
   preSale: {
-    price: 0.03,
+    price: 0.05,
     maxMintAmountPerTx: 1,
   },
   publicSale: {
-    price: 0.07,
+    price: 0.2,
     maxMintAmountPerTx: 1,
   },
   contractAddress: "0x5CB481e0c3E985d6A0A1Cb3dF0361bc7D8B55797",
