@@ -14,6 +14,7 @@ interface Props {
   isUserInWhitelist: boolean;
   mintTokens(mintAmount: number): Promise<void>;
   whitelistMintTokens(mintAmount: number): Promise<void>;
+  nftAddress: string|null
 }
 
 interface State {
@@ -67,11 +68,15 @@ export default class MintWidget extends React.Component<Props, State> {
         {this.canMint() ?
           <div className={`mint-widget ${this.props.loading ? 'animate-pulse saturate-0 pointer-events-none' : ''}`}>
             <div className="preview">
-              <img src="/build/images/preview.png" alt="Collection preview" />
+              <img src="/build/images/preview.jpg" alt="Collection preview" />
             </div>
 
             <div className="price">
               <strong>Total price:</strong> {utils.formatEther(this.props.tokenPrice.mul(this.state.mintAmount))} {this.props.networkConfig.symbol}
+            </div>
+
+            <div>
+              <strong>Contract Address: {this.props.nftAddress}</strong>
             </div>
 
             <div className="controls">

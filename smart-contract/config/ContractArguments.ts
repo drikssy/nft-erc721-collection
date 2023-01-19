@@ -8,7 +8,7 @@ const ContractArguments = [
   utils.parseEther(CollectionConfig.whitelistSale.price.toString()),
   CollectionConfig.maxSupply,
   CollectionConfig.whitelistSale.maxMintAmountPerTx,
-  CollectionConfig.hiddenMetadataUri,
+  CollectionConfig.prefixUri,
 ] as const;
 
 export default ContractArguments;

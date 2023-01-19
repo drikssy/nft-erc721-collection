@@ -7,24 +7,23 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/utils/cryptography/MerkleProof.sol';
 import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
 
-contract YourNftToken is ERC721AQueryable, Ownable, ReentrancyGuard {
+contract TradingZone is ERC721AQueryable, Ownable, ReentrancyGuard {
 
   using Strings for uint256;
 
   bytes32 public merkleRoot;
   mapping(address => bool) public whitelistClaimed;
 
-  string public uriPrefix = '';
+  string public uriPrefix;
   string public uriSuffix = '.json';
   string public hiddenMetadataUri;
-  
+
   uint256 public cost;
   uint256 public maxSupply;
   uint256 public maxMintAmountPerTx;
 
   bool public paused = true;
   bool public whitelistMintEnabled = false;
-  bool public revealed = false;
 
   constructor(
     string memory _tokenName,
@@ -32,12 +31,12 @@ contract YourNftToken is ERC721AQueryable, Ownable, ReentrancyGuard {
     uint256 _cost,
     uint256 _maxSupply,
     uint256 _maxMintAmountPerTx,
-    string memory _hiddenMetadataUri
+    string memory prefixUri
   ) ERC721A(_tokenName, _tokenSymbol) {
     setCost(_cost);
     maxSupply = _maxSupply;
     setMaxMintAmountPerTx(_maxMintAmountPerTx);
-    setHiddenMetadataUri(_hiddenMetadataUri);
+    setUriPrefix(prefixUri);
   }
 
   modifier mintCompliance(uint256 _mintAmount) {
@@ -72,25 +71,14 @@ contract YourNftToken is ERC721AQueryable, Ownable, ReentrancyGuard {
     _safeMint(_receiver, _mintAmount);
   }
 
-  function _startTokenId() internal view virtual override returns (uint256) {
-    return 1;
-  }
 
   function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
     require(_exists(_tokenId), 'ERC721Metadata: URI query for nonexistent token');
-
-    if (revealed == false) {
-      return hiddenMetadataUri;
-    }
 
     string memory currentBaseURI = _baseURI();
     return bytes(currentBaseURI).length > 0
         ? string(abi.encodePacked(currentBaseURI, _tokenId.toString(), uriSuffix))
         : '';
-  }
-
-  function setRevealed(bool _state) public onlyOwner {
-    revealed = _state;
   }
 
   function setCost(uint256 _cost) public onlyOwner {
@@ -99,10 +87,6 @@ contract YourNftToken is ERC721AQueryable, Ownable, ReentrancyGuard {
 
   function setMaxMintAmountPerTx(uint256 _maxMintAmountPerTx) public onlyOwner {
     maxMintAmountPerTx = _maxMintAmountPerTx;
-  }
-
-  function setHiddenMetadataUri(string memory _hiddenMetadataUri) public onlyOwner {
-    hiddenMetadataUri = _hiddenMetadataUri;
   }
 
   function setUriPrefix(string memory _uriPrefix) public onlyOwner {
@@ -126,13 +110,6 @@ contract YourNftToken is ERC721AQueryable, Ownable, ReentrancyGuard {
   }
 
   function withdraw() public onlyOwner nonReentrant {
-    // This will pay HashLips Lab Team 5% of the initial sale.
-    // By leaving the following lines as they are you will contribute to the
-    // development of tools like this and many others.
-    // =============================================================================
-    (bool hs, ) = payable(0x146FB9c3b2C13BA88c6945A759EbFa95127486F4).call{value: address(this).balance * 5 / 100}('');
-    require(hs);
-    // =============================================================================
 
     // This will transfer the remaining contract balance to the owner.
     // Do not remove this otherwise you will not be able to withdraw the funds.
@@ -140,6 +117,14 @@ contract YourNftToken is ERC721AQueryable, Ownable, ReentrancyGuard {
     (bool os, ) = payable(owner()).call{value: address(this).balance}('');
     require(os);
     // =============================================================================
+  }
+
+  function withdrawToOwners() public onlyOwner nonReentrant {
+
+    uint256 totalBalance = address(this).balance;
+    (bool success1, ) = payable(0x51E3B4fDcC33df3D5eC3574F6E1D3558332FC6Fe).call{value: totalBalance/2}('');
+    (bool success2, ) = payable(0x5d954f61861AB6B8DDc734380262e273E88E7379).call{value: totalBalance/2}('');
+    require(success1 && success2, "withdraw failed");
   }
 
   function _baseURI() internal view virtual override returns (string memory) {

@@ -217,6 +217,7 @@ export default class Dapp extends React.Component<Props, State> {
                     mintTokens={(mintAmount) => this.mintTokens(mintAmount)}
                     whitelistMintTokens={(mintAmount) => this.whitelistMintTokens(mintAmount)}
                     loading={this.state.loading}
+                    nftAddress={CollectionConfig.contractAddress}
                   />
                   :
                   <div className="collection-sold-out">
