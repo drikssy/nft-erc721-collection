@@ -110,32 +110,6 @@ export default class Dapp extends React.Component<Props, State> {
     }
   }
 
-  async whitelistMintTokens(amount: number): Promise<void>
-  {
-    try {
-      this.setState({loading: true});
-      const transaction = await this.contract.whitelistMint(amount, Whitelist.getProofForAddress(this.state.userAddress!), {value: this.state.tokenPrice.mul(amount)});
-
-      toast.info(<>
-        Transaction sent! Please wait...<br/>
-        <a href={this.generateTransactionUrl(transaction.hash)} target="_blank" rel="noopener">View on {this.state.networkConfig.blockExplorer.name}</a>
-      </>);
-
-      const receipt = await transaction.wait();
-
-      toast.success(<>
-        Success!<br />
-        <a href={this.generateTransactionUrl(receipt.transactionHash)} target="_blank" rel="noopener">View on {this.state.networkConfig.blockExplorer.name}</a>
-      </>);
-
-      this.refreshContractState();
-      this.setState({loading: false});
-    } catch (e) {
-      this.setError(e);
-      this.setState({loading: false});
-    }
-  }
-
   private isWalletConnected(): boolean
   {
     return this.state.userAddress !== null;
@@ -212,10 +186,7 @@ export default class Dapp extends React.Component<Props, State> {
                     tokenPrice={this.state.tokenPrice}
                     maxMintAmountPerTx={this.state.maxMintAmountPerTx}
                     isPaused={this.state.isPaused}
-                    isWhitelistMintEnabled={this.state.isWhitelistMintEnabled}
-                    isUserInWhitelist={this.state.isUserInWhitelist}
                     mintTokens={(mintAmount) => this.mintTokens(mintAmount)}
-                    whitelistMintTokens={(mintAmount) => this.whitelistMintTokens(mintAmount)}
                     loading={this.state.loading}
                     nftAddress={CollectionConfig.contractAddress}
                   />
@@ -244,24 +215,10 @@ export default class Dapp extends React.Component<Props, State> {
 
             <div className="use-block-explorer">
               Hey, looking for a <strong>super-safe experience</strong>? <span className="emoji">😃</span><br />
-              You can interact with the smart-contract <strong>directly</strong> through <a href={this.generateContractUrl()} target="_blank">{this.state.networkConfig.blockExplorer.name}</a>, without even connecting your wallet to this DAPP! <span className="emoji">🚀</span><br />
+              You can interact with the <strong>TRADING ZONE</strong> smart-contract <strong>directly</strong> through <a href={this.generateContractUrl()} target="_blank">{this.state.networkConfig.blockExplorer.name}</a>, without even connecting your wallet to this DAPP! <span className="emoji">🚀</span><br />
               <br />
               Keep safe! <span className="emoji">❤️</span>
             </div>
-
-            {!this.isWalletConnected() || this.state.isWhitelistMintEnabled ?
-              <div className="merkle-proof-manual-address">
-                <h2>Whitelist Proof</h2>
-                <p>
-                  Anyone can generate the proof using any public address in the list, but <strong>only the owner of that address</strong> will be able to make a successful transaction by using it.
-                </p>
-
-                {this.state.merkleProofManualAddressFeedbackMessage ? <div className="feedback-message">{this.state.merkleProofManualAddressFeedbackMessage}</div> : null}
-
-                <label htmlFor="merkle-proof-manual-address">Public address:</label>
-                <input id="merkle-proof-manual-address" type="text" placeholder="0x000..." disabled={this.state.userAddress !== null} value={this.state.userAddress ?? this.state.merkleProofManualAddress} ref={(input) => this.merkleProofManualAddressInput = input!} onChange={() => {this.setState({merkleProofManualAddress: this.merkleProofManualAddressInput.value})}} /> <button onClick={() => this.copyMerkleProofToClipboard()}>Generate and copy to clipboard</button>
-              </div>
-              : null}
           </div>
         }
       </>
@@ -328,8 +285,6 @@ export default class Dapp extends React.Component<Props, State> {
       maxMintAmountPerTx: (await this.contract.maxMintAmountPerTx()).toNumber(),
       tokenPrice: await this.contract.cost(),
       isPaused: await this.contract.paused(),
-      isWhitelistMintEnabled: await this.contract.whitelistMintEnabled(),
-      isUserInWhitelist: Whitelist.contains(this.state.userAddress ?? ''),
     });
   }
 

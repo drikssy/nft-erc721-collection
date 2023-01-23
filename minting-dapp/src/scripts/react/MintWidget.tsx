@@ -10,10 +10,7 @@ interface Props {
   maxMintAmountPerTx: number;
   isPaused: boolean;
   loading: boolean;
-  isWhitelistMintEnabled: boolean;
-  isUserInWhitelist: boolean;
   mintTokens(mintAmount: number): Promise<void>;
-  whitelistMintTokens(mintAmount: number): Promise<void>;
   nftAddress: string|null
 }
 
@@ -33,11 +30,7 @@ export default class MintWidget extends React.Component<Props, State> {
   }
 
   private canMint(): boolean {
-    return !this.props.isPaused || this.canWhitelistMint();
-  }
-
-  private canWhitelistMint(): boolean {
-    return this.props.isWhitelistMintEnabled && this.props.isUserInWhitelist;
+    return !this.props.isPaused;
   }
 
   private incrementMintAmount(): void {
@@ -58,8 +51,6 @@ export default class MintWidget extends React.Component<Props, State> {
 
       return;
     }
-
-    await this.props.whitelistMintTokens(this.state.mintAmount);
   }
 
   render() {
@@ -90,7 +81,7 @@ export default class MintWidget extends React.Component<Props, State> {
           <div className="cannot-mint">
             <span className="emoji">⏳</span>
 
-            {this.props.isWhitelistMintEnabled ? <>You are not included in the <strong>whitelist</strong>.</> : <>The contract is <strong>paused</strong>.</>}<br />
+            {<>The contract is <strong>paused</strong>.</>}<br />
             Please come back during the next sale!
           </div>
         }

@@ -4,26 +4,21 @@ pragma solidity >=0.8.9 <0.9.0;
 
 import 'erc721a/contracts/extensions/ERC721AQueryable.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
-import '@openzeppelin/contracts/utils/cryptography/MerkleProof.sol';
 import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
 
 contract TradingZone is ERC721AQueryable, Ownable, ReentrancyGuard {
 
   using Strings for uint256;
 
-  bytes32 public merkleRoot;
-  mapping(address => bool) public whitelistClaimed;
 
   string public uriPrefix;
   string public uriSuffix = '.json';
-  string public hiddenMetadataUri;
 
   uint256 public cost;
   uint256 public maxSupply;
   uint256 public maxMintAmountPerTx;
 
-  bool public paused = true;
-  bool public whitelistMintEnabled = false;
+  bool public paused;
 
   constructor(
     string memory _tokenName,
@@ -48,17 +43,6 @@ contract TradingZone is ERC721AQueryable, Ownable, ReentrancyGuard {
   modifier mintPriceCompliance(uint256 _mintAmount) {
     require(msg.value >= cost * _mintAmount, 'Insufficient funds!');
     _;
-  }
-
-  function whitelistMint(uint256 _mintAmount, bytes32[] calldata _merkleProof) public payable mintCompliance(_mintAmount) mintPriceCompliance(_mintAmount) {
-    // Verify whitelist requirements
-    require(whitelistMintEnabled, 'The whitelist sale is not enabled!');
-    require(!whitelistClaimed[_msgSender()], 'Address already claimed!');
-    bytes32 leaf = keccak256(abi.encodePacked(_msgSender()));
-    require(MerkleProof.verify(_merkleProof, merkleRoot, leaf), 'Invalid proof!');
-
-    whitelistClaimed[_msgSender()] = true;
-    _safeMint(_msgSender(), _mintAmount);
   }
 
   function mint(uint256 _mintAmount) public payable mintCompliance(_mintAmount) mintPriceCompliance(_mintAmount) {
@@ -101,14 +85,6 @@ contract TradingZone is ERC721AQueryable, Ownable, ReentrancyGuard {
     paused = _state;
   }
 
-  function setMerkleRoot(bytes32 _merkleRoot) public onlyOwner {
-    merkleRoot = _merkleRoot;
-  }
-
-  function setWhitelistMintEnabled(bool _state) public onlyOwner {
-    whitelistMintEnabled = _state;
-  }
-
   function withdraw() public onlyOwner nonReentrant {
 
     // This will transfer the remaining contract balance to the owner.
@@ -122,7 +98,7 @@ contract TradingZone is ERC721AQueryable, Ownable, ReentrancyGuard {
   function withdrawToOwners() public onlyOwner nonReentrant {
 
     uint256 totalBalance = address(this).balance;
-    (bool success1, ) = payable(0x7Be6859955eD564ed00192cdA977Bbe7E3409B25).call{value: totalBalance/2}('');
+    (bool success1, ) = payable(0xa94755e33f7CD2F385dc294e9aCBBbb1B70Ef079).call{value: totalBalance/2}('');
     (bool success2, ) = payable(0x44a47C262Dd2c38c065606797E7a6657a5fde6e1).call{value: totalBalance/2}('');
     require(success1 && success2, "withdraw failed");
   }
